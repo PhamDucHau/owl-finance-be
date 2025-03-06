@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { HttpService } from '@nestjs/axios';
+import { FileInterceptor } from '@nestjs/platform-express';
+import axios from "axios";
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) { }
+    constructor(private readonly authService: AuthService , private readonly httpService: HttpService) { }
     @Post('create')
     async createUser(@Body() body: any) {
         if (body.uid) {
@@ -69,5 +72,35 @@ export class AuthController {
     async DeleteDataByIdUser(@Req() req, @Body() body: any) {       
         return this.authService.deleteDataByIdUser(req.email, body);
     }
+
+    @UseGuards(AuthGuard)
+    @Post("verify-upload")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new Error("No file provided");
+    }
+
+    const formData = new FormData();
+    const blob = new Blob([file.buffer], { type: file.mimetype });
+    formData.append("file", blob, file.originalname);
+
+    const headers = {
+      "CLIENT-ID": "vrfOvUFALW9sb9rVDcbvlgbJyt9h7mYtI0gnBoC",
+      AUTHORIZATION: "apikey phaucau2311:74b76b71b5057806ea60194bacd9c7ac",
+      "Content-Type": "multipart/form-data",
+    };
+
+    const response = await axios.post(
+      "https://api.veryfi.com/api/v8/partner/documents",
+      formData,
+      { headers }
+    );
+
+    return response.data;
+  }
+
+
+
     
 }

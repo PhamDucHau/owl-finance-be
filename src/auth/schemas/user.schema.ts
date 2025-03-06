@@ -9,6 +9,10 @@ export class transactions {
   category: string;
   @Prop({ required: true })
   product: string;
+  @Prop({ required: true })
+  quantity: string;
+  @Prop({ })
+  total: string;  
   @Prop({ required: false, default: false })
   deleted: boolean;
 }

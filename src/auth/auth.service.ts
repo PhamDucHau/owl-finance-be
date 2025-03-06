@@ -123,6 +123,9 @@ export class AuthService {
     return result
   }
 
+  
+  
+
   async deleteDataByIdUser(email: string, data: any) {
     const body = {
       ...data,
@@ -184,6 +187,7 @@ async updateTransactionByIdUser(email: string, data: any) {
 
   return result;
 }
+
 
 
 }
