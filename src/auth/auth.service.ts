@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
+import axios from "axios";
 
 @Injectable()
 export class AuthService {
@@ -187,6 +188,42 @@ async updateTransactionByIdUser(email: string, data: any) {
 
   return result;
 }
+
+
+
+private readonly botToken = '7561500069:AAGNyOQMfdTZnkic5S1AfLSMUT30qCVU_bA';
+private readonly chatId = '-4711661610';
+
+  async sendMessage(message: string): Promise<void> {
+    const url = `https://api.telegram.org/bot${this.botToken}/sendMessage`;
+    
+    try {
+      await axios.post(url, {
+        chat_id: this.chatId,
+        text: message,
+        parse_mode: 'Markdown',
+      });
+      console.log('✅ Tin nhắn đã được gửi thành công!');
+    } catch (error) {
+      console.error('❌ Lỗi gửi tin nhắn:', error.response?.data || error.message);
+    }
+  }
+
+  async sendImage(message: string): Promise<void> {
+    const url = `https://api.telegram.org/bot${this.botToken}/sendPhoto`;
+    console.log('✅ message', message);
+    
+    try { 
+      await axios.post(url, {
+        chat_id: this.chatId,
+        photo: message,
+        parse_mode: 'Markdown',
+      });
+      console.log('✅ Hình ảnh đã được gửi thành công!');
+    } catch (error) {
+      console.error('❌ Lỗi gửi hình ảnh:', error.response?.data || error.message);
+    }
+  }
 
 
 

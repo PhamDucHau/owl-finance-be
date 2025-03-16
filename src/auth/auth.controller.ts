@@ -101,6 +101,19 @@ export class AuthController {
   }
 
 
+  @Get('send')
+  async sendTestMessage() {
+    await this.authService.sendMessage('📢 Thử nghiệm gửi tin nhắn từ NestJS!');
+    return { message: 'Tin nhắn đã được gửi!' };
+  }
+
+  @Get('send-image')
+  async sendImage() {
+    await this.authService.sendImage('http://khoadue.me:9000/imagefolder/billllllllllllllllllllllllllllllllllll.jpg');
+    return { message: 'Tin nhắn đã được gửi!' };
+  }
+
+
 
     
 }
