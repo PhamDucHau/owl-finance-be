@@ -13,6 +13,10 @@ export class transactions {
   quantity: string;
   @Prop({ })
   total: string;  
+  @Prop({ })
+  brand: string;
+  @Prop({ })
+  logo: string;
   @Prop({ required: false, default: false })
   deleted: boolean;
 }
