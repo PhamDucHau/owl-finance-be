@@ -43,9 +43,17 @@ export class dataCard {
     @Prop({ required: false, default: null })
     send: boolean;
     @Prop({ type: [transactions], default: [] })  // 👈 Thêm default []
-    transactions?: transactions[];
+    transactions?: transactions[];  
+}
 
-  
+@Schema({ timestamps: true })
+export class friendships {  
+  @Prop({ required: true })
+  recipient: string;
+  @Prop({ required: false})
+  status: string;
+  @Prop({ required: false})
+  recipient_gmail: string;
 }
 
 
@@ -66,7 +74,8 @@ export class User extends Document {
   @Prop({ type: [dataCard] })
   data_card?: dataCard[];
 
-
+  @Prop({ type: [friendships] })
+  friendships?: friendships[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

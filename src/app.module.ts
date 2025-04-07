@@ -8,9 +8,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from './config/config';
 import { User, UserSchema } from './auth/schemas/user.schema';
 import { CardModule } from './card/card.module';
+import { FriendModule } from './auth/socket/friend.module';
 
 @Module({
   imports: [
+    FriendModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,

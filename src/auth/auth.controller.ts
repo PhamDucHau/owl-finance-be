@@ -113,6 +113,56 @@ export class AuthController {
     return { message: 'Tin nhắn đã được gửi!' };
   }
 
+  @Post('send-message-ai')
+  async sendMessageAI(@Body() body: any) {
+    return await this.authService.sendMessageAI(body.message);
+     
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('friends/request')
+  async sendFriendRequest(@Req() req, @Body() body: any) {
+    return await this.authService.sendFriendRequest(req.email, body.recipient);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('friends/accept')
+  async acceptFriendRequest(@Req() req, @Body() body: any) {
+    return await this.authService.acceptFriendRequest(req.email, body.recipient);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('friends/reject')
+  async rejectFriendRequest(@Req() req, @Body() body: any) {
+    return await this.authService.rejectFriendRequest(req.email, body.recipient);
+  }
+
+  
+
+  @UseGuards(AuthGuard)
+  @Get('friends/not-accepted')
+  async getFriendsNotAccepted(@Req() req) {    
+    return await this.authService.getFriendsNotAccepted(req.email);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('friends/accepted')
+  async getFriendsAccepted(@Req() req) {    
+    return await this.authService.getFriendsAccepted(req.email);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('all-email')
+  async getAllEmail(@Req() req) {
+    return await this.authService.getAllEmail(req.email);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('friends/request-socket')
+  async sendRequestSocket(@Req() req ,  @Body() body: any) {
+    return await this.authService.sendRequestSocket(req.email, body.recipient, body.message);
+  }
+
 
 
 
