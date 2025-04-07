@@ -5,10 +5,8 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class AppService {  
-  async getHello(req: any) {
-    console.log(req.email);
-    return {
-      email: req.email
-    }
+  async getHello() {
+    
+    return 'hellhelhel'
   }
 }

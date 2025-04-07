@@ -4,10 +4,12 @@ import { User } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import axios from "axios";
+import { FriendGateway } from './socket/friend.gateway';
 
 @Injectable()
 export class AuthService {
   constructor(@InjectModel(User.name) private userModel: Model<User>,
+  private readonly friendGateway: FriendGateway,
     private jwtService: JwtService,) { }
   async createUserWithFirebase(data: { uid: string; email: string; name: string }) {
     // Kiểm tra xem user đã tồn tại trong MongoDB
@@ -242,6 +244,128 @@ private readonly chatId = '-4711661610';
     }
   }
 
+  async sendMessageAI(body: any): Promise<any> {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer sk-fc52ed1b46334bd8935848d378f4cad9`
+    };
+    const url = `https://api.deepseek.com/v1/chat/completions`;
+    console.log('✅ message', body);
+    
+    try {
+      const response = await axios.post(url, {        
+        model: 'deepseek-chat',
+        messages: [{
+          role: 'user',
+          content: body
+        }],
+      }, { headers });
+      console.log('✅ Tin nhắn đã được gửi thành công!');
+      return response.data;
+    } catch (error) {
+      console.error('❌ Lỗi gửi tin nhắn:', error.response?.data || error.message);
+      throw error;
+    }
+  }
 
+
+  async sendFriendRequest(email: string, recipient: string) {
+    const user = await this.userModel.findOne({ email });
+    const recipientUser = await this.userModel.findOne({ email: recipient });   
+    if (!user || !recipientUser) {
+      throw new UnauthorizedException('User not found');
+    }    
+    await this.userModel.findOneAndUpdate({ email }, { $push: { friendships: { recipient: recipientUser._id, recipient_gmail:recipientUser.email , status: 'sent'} } }).exec();
+    await this.userModel.findOneAndUpdate({ email: recipient }, { $push: { friendships: { recipient: user._id, recipient_gmail:email, status: 'pending' } } }).exec();
+    return { success: true };
+  }
+
+  async acceptFriendRequest(email: string, recipient: string) {
+    const user = await this.userModel.findOne({ email });
+    const recipientUser = await this.userModel.findOne({ email: recipient });
+    
+    if (!user || !recipientUser) {
+      throw new UnauthorizedException('User not found');
+    }
+    
+    await this.userModel.updateOne(
+      { email, "friendships.recipient_gmail": recipient},
+      { $set: { "friendships.$.status": "accepted" } }
+    ).exec();
+  
+    await this.userModel.updateOne(
+      { email: recipient, "friendships.recipient_gmail": email },
+      { $set: { "friendships.$.status": "accepted" } }
+    ).exec();
+    return { success: true };
+  }
+
+  async rejectFriendRequest(email: string, recipient: string) {
+    const user = await this.userModel.findOne({ email });
+    const recipientUser = await this.userModel.findOne({ email: recipient });
+  
+
+    await this.userModel.updateOne(
+      { email: email },
+      { $pull: { friendships: { recipient_gmail: recipient } } }
+    ).exec();
+  
+    await this.userModel.updateOne(
+      { email: recipient },
+      { $pull: { friendships: { recipient_gmail: email } } }
+    ).exec();
+    
+    return { success: true };
+  }
+
+  
+
+  async getFriendsNotAccepted(email: string) {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+  
+    // Lọc ra danh sách bạn bè đã accepted
+    const acceptedFriends = user.friendships.filter(
+      (friend) => friend.status !== 'accepted'
+    );
+  
+    return acceptedFriends;
+  }
+
+  async getFriendsAccepted(email: string) {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+  
+    // Lọc ra danh sách bạn bè đã accepted
+    const acceptedFriends = user.friendships.filter(
+      (friend) => friend.status === 'accepted'
+    );
+  
+    return acceptedFriends;
+  }
+
+  async getAllEmail(email: string) {
+    const friendships = await this.userModel.findOne({ email });
+    const allEmail = await this.userModel.find({ email: { $ne: email } }).select('email').exec();    
+    const allEmailNotFriend = allEmail.filter((user) => !friendships?.friendships.some((friend) => friend.recipient_gmail === user.email));
+    
+    return allEmailNotFriend;
+  }
+
+  async sendRequestSocket(senderEmail: string, recipientEmail: string, message: string) {
+    // ... logic lưu DB
+
+    // Gửi socket cho người nhận
+    this.friendGateway.sendFriendRequest(recipientEmail, {
+      from: senderEmail,
+      message: message,
+    });
+  }
+
+  
 
 }
