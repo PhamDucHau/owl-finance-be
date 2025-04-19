@@ -163,6 +163,36 @@ export class AuthController {
     return await this.authService.sendRequestSocket(req.email, body.recipient, body.message);
   }
 
+  @UseGuards(AuthGuard)
+  @Post('plan/create')
+  async createPlan(@Req() req, @Body() body: any) {
+    return await this.authService.createPlan(req.email, body);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('plan/get-all')
+  async getAllPlan(@Req() req) {
+    return await this.authService.getAllPlan(req.email);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('plan/update')
+  async updatePlan(@Req() req, @Body() body: any) {
+    return await this.authService.updatePlan(req.email, body);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('plan/delete')
+  async deletePlan(@Req() req, @Body() body: any) {
+    return await this.authService.deletePlan(req.email, body);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('connect-ai')
+  async connectAI(@Req() req, @Body() body: any) {
+    return await this.authService.connectAI(req.email, body);
+  }
+
 
 
 
