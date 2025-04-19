@@ -54,9 +54,25 @@ export class friendships {
   status: string;
   @Prop({ required: false})
   recipient_gmail: string;
+  @Prop({ required: false})
+  total: number;
 }
 
-
+@Schema({ timestamps: true })
+export class plan {
+  @Prop({ required: false })
+  name: string;
+  @Prop({ required: false })
+  image: string;  
+  @Prop({ required: false })
+  price: number;  
+  @Prop({ required: false })
+  date_start: string;
+  @Prop({ required: false })
+  date_end: string;
+  @Prop({ required: false })
+  status: string;
+}
 
 @Schema({ collection: 'users', timestamps: true })
 export class User extends Document {
@@ -76,6 +92,9 @@ export class User extends Document {
 
   @Prop({ type: [friendships] })
   friendships?: friendships[];
+
+  @Prop({ type: [plan] })
+  plan?: plan[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
