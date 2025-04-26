@@ -408,8 +408,8 @@ export class AuthService {
 
   async deletePlan(email: string, body: any) {
     const result = await this.userModel.findOneAndUpdate(
-      { email, 'plan._id': body._id },
-      { $pull: { plan: { _id: body._id } } },
+      { email, 'plan._id': body.id },
+      { $pull: { plan: { _id: body.id } } },
       { new: true }
     ).exec();
     return result;
@@ -441,6 +441,45 @@ export class AuthService {
       console.error('❌ Lỗi kết nối AI:', error.response?.data || error.message);
       throw new UnauthorizedException('Failed to connect to AI service');
     }
+  }
+
+  async createMessage(email: string, body: any) {
+    const result = await this.userModel.findOneAndUpdate(
+      { email },
+      { $push: { message: body } },
+      { new: true }
+    ).exec();
+    if (result) {
+      //connect to ai
+      const response = await this.sendMessageAI(body.content);
+      const message = {
+        sender: 'AI',
+        content: response.choices[0].message.content
+      }
+      await this.userModel.findOneAndUpdate(
+        { email },
+        { $push: { message: message } },
+        { new: true }
+      ).exec();
+      return message;
+    }
+    
+  }
+
+  async getAllMessage(email: string) {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return user.message;
+  }
+
+  async deleteMessage(email: string, body: any) {
+    const result = await this.userModel.findOneAndUpdate(
+      { email, 'message._id': body.id },
+      { $pull: { message: { _id: body.id } } },
+      { new: true }
+    ).exec();
   }
 
 

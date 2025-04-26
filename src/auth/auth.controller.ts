@@ -193,6 +193,25 @@ export class AuthController {
     return await this.authService.connectAI(req.email, body);
   }
 
+  @UseGuards(AuthGuard)
+  @Post('message/create')
+  async createMessage(@Req() req, @Body() body: any) {
+    return await this.authService.createMessage(req.email, body);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('message/get-all')
+  async getAllMessage(@Req() req) {
+    return await this.authService.getAllMessage(req.email);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('message/delete')
+  async deleteMessage(@Req() req, @Body() body: any) {
+    return await this.authService.deleteMessage(req.email, body);
+  }
+
+
 
 
 
