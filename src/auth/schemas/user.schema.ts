@@ -74,6 +74,14 @@ export class plan {
   status: string;
 }
 
+@Schema({ timestamps: true })
+export class message {
+  @Prop({ required: true })
+  sender: string;
+  @Prop({ required: true })
+  content: string;  
+}
+
 @Schema({ collection: 'users', timestamps: true })
 export class User extends Document {
   @Prop({ required: true })
@@ -95,6 +103,9 @@ export class User extends Document {
 
   @Prop({ type: [plan] })
   plan?: plan[];
+
+  @Prop({ type: [message] })
+  message?: message[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

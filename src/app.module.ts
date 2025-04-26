@@ -9,6 +9,7 @@ import config from './config/config';
 import { User, UserSchema } from './auth/schemas/user.schema';
 import { CardModule } from './card/card.module';
 import { FriendModule } from './auth/socket/friend.module';
+import { MinioModule } from './minio/minio.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { FriendModule } from './auth/socket/friend.module';
       // secret: '123',
     }),
     AuthModule,
-    CardModule,    
+    CardModule,  
+    MinioModule  
   ],
   controllers: [AppController],
   providers: [AppService],
